@@ -35,6 +35,7 @@ end
 
 local function createLimeric()
 	local occupations = JSONtoTable('occupations.json')
+	local nouns = JSONtoTable('nouns.json')
 
 	local places_rhymes = JSONtoTable('place_rhymes.json')
 
@@ -194,15 +195,15 @@ local function createLimeric()
 		objs[3] = temp[math.random(2, #temp)]
 	
 		while true do
-			local obj = objects[math.random(1, #objects)]
-			local phones = pn.phones_for_word(string.lower(obj))[0] or ''
+			local nouns = nouns[math.random(1, #nouns)]
+			local phones = pn.phones_for_word(string.lower(nouns))[0] or ''
 			local o_syl = pn.syllable_count(phones)
 
 			if o_syl == (lim_sizes[4] - obj_syl - 3) then
 				local stresses = pn.stresses(phones)
 
 				if stresses:find('1') == 1 then 
-					objs[2] = obj
+					objs[2] = nouns
 					break
 				end
 			end
@@ -219,7 +220,6 @@ local function createLimeric()
 
 	return str
 end
-
 
 local file = io.open('lims.txt', 'w')
 file:write([[
@@ -275,6 +275,7 @@ file:close()
 
 -- do
 -- 	local objs = JSONtoTable('objs.json')
+-- 	local nouns = JSONtoTable('nouns.json')
 
 -- 	local obj_rhymes = {}
 
@@ -295,6 +296,16 @@ file:close()
 -- 						table.insert(rhymes, o)
 -- 					end
 -- 				end
+
+-- 				for _, n in pairs(nouns) do
+-- 					if w == n and w ~= obj then
+-- 						for k, r in pairs(rhymes) do 
+-- 							if r == n then table.remove(rhymes, k) end
+-- 						end
+
+-- 						table.insert(rhymes, n)
+-- 					end
+-- 				end
 -- 			end
 
 -- 			if #rhymes <= 1 then obj_rhymes[#obj_rhymes] = nil end
@@ -302,7 +313,43 @@ file:close()
 -- 	end
 
 -- 	local str = json.encode(obj_rhymes)
--- 	local file = io.open('obj_rhymes.json', 'w')
+-- 	local file = io.open('obj_rhymes_2.json', 'w')
 -- 	file:write(str)
 -- 	file:close()
+-- end
+
+-----------------------------------------------------------------------------
+
+-- remove duplicates
+-- do
+-- 	local nouns = JSONtoTable('nouns.json')
+
+-- 	local t = {}
+-- 	for k, v in pairs(nouns) do
+-- 		if not t[v] then t[v] = 1 else t[v] = t[v] + 1 end
+-- 	end
+
+-- 	for k, v in pairs(nouns) do
+-- 		if t[v] > 1 then 
+-- 			table.remove(nouns, k)
+-- 			t[v] = t[v] - 1
+-- 		end
+-- 	end
+
+-- 	local f = io.open('nouns.json', 'w')
+-- 	f:write(json.encode(nouns))
+-- end
+
+-- make plurals
+-- do
+-- 	local nouns = JSONtoTable('nouns.json')
+-- 	local inflect = py.import('inflect')
+-- 	local en = inflect.engine()
+
+-- 	for k, v in pairs(nouns) do
+-- 		nouns[k] = en.plural(v)
+-- 	end
+
+-- 	local f = io.open('nouns.json', 'w')
+-- 	f:write(json.encode(nouns))
 -- end
