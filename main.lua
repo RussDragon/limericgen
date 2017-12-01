@@ -1,4 +1,4 @@
-local json = require('json')
+local json = require('cjson')
 -- local serpent = require('serpent')
 local py = require('python')
 local pn = py.import('pronouncing')
@@ -34,15 +34,15 @@ local function JSONtoTable(path)
 end
 
 local function createLimeric()
-	local occupations = JSONtoTable('occupations.json')
-	local nouns = JSONtoTable('nouns.json')
+	local occupations = JSONtoTable('dict/occupations.json')
+	local nouns = JSONtoTable('dict/nouns.json')
 
-	local places_rhymes = JSONtoTable('place_rhymes.json')
+	local places_rhymes = JSONtoTable('dict/place_rhymes.json')
 
-	local descr = JSONtoTable('descriptions.json')
+	local descr = JSONtoTable('dict/descriptions.json')
 
-	local objects_rhymes = JSONtoTable('obj_rhymes.json')
-	local objects = JSONtoTable('objs.json')
+	local objects_rhymes = JSONtoTable('dict/obj_rhymes.json')
+	local objects = JSONtoTable('dict/objs.json')
 
 	local who = {'', ''}
 	local place_name = ''
@@ -221,17 +221,19 @@ local function createLimeric()
 	return str
 end
 
-local file = io.open('lims.txt', 'w')
-file:write([[
-	There was an Old Person of Chili,
-	Whose conduct was painful and silly,
-	He sat on the stairs,
-	Eating apples and pears,
-	That imprudent Old Person of Chili.]], '\n\n')
-for i = 1, 1599 do 
-	file:write(createLimeric(), '\n\n')
-end
-file:close()
+print(createLimeric())
+
+-- local file = io.open('lims.txt', 'w')
+-- file:write([[
+-- 	There was an Old Person of Chili,
+-- 	Whose conduct was painful and silly,
+-- 	He sat on the stairs,
+-- 	Eating apples and pears,
+-- 	That imprudent Old Person of Chili.]], '\n\n')
+-- for i = 1, 1599 do 
+-- 	file:write(createLimeric(), '\n\n')
+-- end
+-- file:close()
 
 -----------------------------------------------------------------------------
 -- Create a json-object with place rhymes
