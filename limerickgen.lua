@@ -197,9 +197,9 @@ local createLimerick = function()
 
 	local str = [[
 There was %s of %s,
-Whose conduct was %s and %s, 
-He sat on the %s, 
-Eating %s and %s,
+Whose conduct was %s and %s,
+	He sat on the %s,
+	Eating %s and %s,
 That %s %s of %s
 ]]
 
