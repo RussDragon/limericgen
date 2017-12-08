@@ -1,8 +1,8 @@
 local limgen = require 'limerickgen'
 
-for l in io.lines() do 
-	print(limgen.createLimerick())
-end
+math.randomseed(os.time())
+
+io.stdout:write(limgen.createLimerick())
 
 -----------------------------------------------------------------------------
 -- Create a json-object with place rhymes
