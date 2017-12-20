@@ -1,3 +1,6 @@
+local select, math_randomseed, math_random, table_insert = select, math.randomseed, 
+																													 math.random, table.insert
+
 local json = require('cjson')
 local py = require('python')
 
@@ -40,11 +43,11 @@ local createLimerick = function()
 		local who_stress = 0
 
 		-- 1 – a/an young/old (2syl), 2 – a/an (3syl)
-		if math.random(1, 2) == 1 then
+		if math_random(1, 2) == 1 then
 			who_syl = 2
 			who_stress = 1
 
-			if math.random(1, 2) == 1 then who_article = 'an Old ' else who_article = 'a Young ' end
+			if math_random(1, 2) == 1 then who_article = 'an Old ' else who_article = 'a Young ' end
 		else
 			who_syl = 3
 			who_stress = 2
@@ -71,7 +74,7 @@ local createLimerick = function()
 			end
 		end
 
-		who[1] = ok_occup[math.random(1, #ok_occup)]
+		who[1] = ok_occup[math_random(1, #ok_occup)]
 		who[2] = who[1]:match(' (.+)')
 	end
 
@@ -113,7 +116,7 @@ local createLimerick = function()
 
 		-- TODO: Make a dictionary to remove while true do
 		while true do 
-			local adj = descr[math.random(1, #descr)]
+			local adj = descr[math_random(1, #descr)]
 			local phones = pn.phones_for_word(string.lower(adj))[0] or ''
 			local a_syl = pn.syllable_count(phones)
 
@@ -134,9 +137,9 @@ local createLimerick = function()
 			if adjs[1] and adjs[3] then break end
 		end
 
-		local place_obj = ok_places[math.random(1, #ok_places)]
+		local place_obj = ok_places[math_random(1, #ok_places)]
 		place_name = place_obj[1]
-		adjs[2] = place_obj[math.random(2, #place_obj)]
+		adjs[2] = place_obj[math_random(2, #place_obj)]
 	end
 
 	do
@@ -151,8 +154,8 @@ local createLimerick = function()
 			local o_syllables = pn.syllable_count(phones)
 			local stress = pn.stresses(phones)
 
-			if o_syllables == obj_syl and stress:find('1') == 1 then 
 				for j = 2, #obj do
+			if o_syllables == obj_syl and stress:find('1') == 1 then 
 					phones = pn.phones_for_word(obj[j])[0]
 
 					local syllables = pn.syllable_count(phones)
@@ -175,12 +178,12 @@ local createLimerick = function()
 			end
 		end
 
-		local temp = ok_objs[math.random(1, #ok_objs)]
+		local temp = ok_objs[math_random(1, #ok_objs)]
 		objs[1] = temp[1]
-		objs[3] = temp[math.random(2, #temp)]
+		objs[3] = temp[math_random(2, #temp)]
 	
 		while true do
-			local nouns = nouns[math.random(1, #nouns)]
+			local nouns = nouns[math_random(1, #nouns)]
 			local phones = pn.phones_for_word(string.lower(nouns))[0] or ''
 			local o_syl = pn.syllable_count(phones)
 
@@ -209,7 +212,9 @@ That %s %s of %s
 									)
 end
 
-return 
-{
-	createLimerick = createLimerick
-}
+math_randomseed(os.time())
+
+local iters = select(1, ...) or 1
+for i = 1, iters do 
+	io.write(createLimerick())
+end
