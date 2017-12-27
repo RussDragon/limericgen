@@ -4,12 +4,14 @@ local select, math_randomseed, math_random, table_insert = select, math.randomse
 local json = require('cjson')
 local py = require('python')
 
-local lim_sizes = {}
-lim_sizes[1] = 9
-lim_sizes[2] = 8
-lim_sizes[3] = 6
-lim_sizes[4] = 6
-lim_sizes[5] = 9
+local lim_sizes = 
+{
+	[1] = 9,
+	[2] = 8,
+	[3] = 6,
+	[4] = 6,
+	[5] = 9
+}
 
 local JSONtoTable = function(path)
 	local f = io.open(path)
@@ -20,6 +22,15 @@ local JSONtoTable = function(path)
 end
 
 local createLimerick = function()
+	local pattern = 
+	{
+		[1] = { 'There', 'was', '', '', 'of', '' },
+		[2] = { 'Whose', 'conduct', 'was', '', 'and', '' },
+		[3] = { 'He', 'sat', 'on', 'the', '' },
+		[4] = { 'Eating', '', 'and', '' },
+		[5] = { 'That', '', '', '', 'of', '' }
+	}
+
 	local pn = py.import('pronouncing')
 
 	local occupations = JSONtoTable('dict/occupations.json')
@@ -32,11 +43,6 @@ local createLimerick = function()
 	local objects_rhymes = JSONtoTable('dict/obj_rhymes.json')
 	local objects = JSONtoTable('dict/objs.json')
 
-	local who = {'', ''}
-	local place_name = ''
-	local adjs = {}
-	local objs = {'','',''}
-
 	do
 		local who_article = ''
 		local who_syl = 0
@@ -47,7 +53,7 @@ local createLimerick = function()
 			who_syl = 2
 			who_stress = 1
 
-			if math_random(1, 2) == 1 then who_article = 'an Old ' else who_article = 'a Young ' end
+			if math_random(1, 2) == 1 then who_article = 'an Old' else who_article = 'a Young' end
 		else
 			who_syl = 3
 			who_stress = 2
@@ -62,20 +68,20 @@ local createLimerick = function()
 			local stress = pn.stresses(phones)
 
 			if occ_syl == who_syl and stress:find('1') == who_stress then
-				occ = occ:gsub("^%l", string.upper)
+				occ = occ:gsub('^%l', string.upper)
 				local vowels = 'AEIOU'
 				if not who_article then
-					if vowels:find(occ:match('.')) then occ = 'an ' .. occ else occ = 'a ' .. occ end
-				else
-					occ = who_article .. occ
+					if vowels:find(occ:match('.')) then who_article = 'an' else who_article = 'a' end
 				end
 
 				table.insert(ok_occup, occ)
 			end
 		end
 
-		who[1] = ok_occup[math_random(1, #ok_occup)]
-		who[2] = who[1]:match(' (.+)')
+		pattern[1][3] = who_article
+		pattern[1][4] = ok_occup[math_random(1, #ok_occup)]
+		pattern[5][3] = pattern[1][3]:match(' (.+)')
+		pattern[5][4] = pattern[1][4]
 	end
 
 	do
@@ -120,26 +126,27 @@ local createLimerick = function()
 			local phones = pn.phones_for_word(string.lower(adj))[0] or ''
 			local a_syl = pn.syllable_count(phones)
 
-			if not adjs[1] and a_syl == lim_sizes[2] - place_syl - 5 then
+			if not pattern[2][4] ~= '' and a_syl == lim_sizes[2] - place_syl - 5 then
 				local stresses = pn.stresses(phones)
 
 				if stresses:find('1') == 1 then 
-					adjs[1] = adj
+					pattern[2][4] = adj
 				end
-			elseif not adjs[3] and a_syl == lim_sizes[5] - place_syl - 5 then
+			elseif not pattern[5][2] ~= '' and a_syl == lim_sizes[5] - place_syl - 5 then
 				local stresses = pn.stresses(phones)
 
 				if stresses:find('1') == 2 then
-					adjs[3] = adj
+					pattern[5][2] = adj
 				end
 			end
 
-			if adjs[1] and adjs[3] then break end
+			if pattern[2][4] ~= '' and pattern[5][2] ~= '' then break end
 		end
 
 		local place_obj = ok_places[math_random(1, #ok_places)]
-		place_name = place_obj[1]
-		adjs[2] = place_obj[math_random(2, #place_obj)]
+		pattern[1][6] = place_obj[1]
+		pattern[5][6] = pattern[1][6]
+		pattern[2][6] = place_obj[math_random(2, #place_obj)]
 	end
 
 	do
@@ -179,8 +186,8 @@ local createLimerick = function()
 		end
 
 		local temp = ok_objs[math_random(1, #ok_objs)]
-		objs[1] = temp[1]
-		objs[3] = temp[math_random(2, #temp)]
+		pattern[3][5] = temp[1]
+		pattern[4][4] = temp[math_random(2, #temp)]
 	
 		while true do
 			local nouns = nouns[math_random(1, #nouns)]
@@ -191,30 +198,25 @@ local createLimerick = function()
 				local stresses = pn.stresses(phones)
 
 				if stresses:find('1') == 1 then 
-					objs[2] = nouns
+					pattern[4][2] = nouns
 					break
 				end
 			end
 		end
 	end
+	
+	local lim = {}
+	for k, v in pairs(pattern) do 
+		lim[k] = table.concat(v, ' ')
+	end
 
-	local str = [[
-There was %s of %s,
-Whose conduct was %s and %s,
-	He sat on the %s,
-	Eating %s and %s,
-That %s %s of %s
-]]
-
-	return str:format(
-										who[1], place_name, adjs[1], adjs[2], objs[1], objs[2], 
-										objs[3], adjs[3], who[2], place_name
-									)
+	return lim
 end
 
 math_randomseed(os.time())
 
 local iters = select(1, ...) or 1
-for i = 1, iters do 
-	io.write(createLimerick())
+for i = 1, iters do
+	local lim = table.concat(createLimerick(), ',\n') .. '.'
+	print(lim)
 end
