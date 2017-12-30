@@ -1,4 +1,24 @@
 --WIP
+
+local json = require('cjson')
+local py = require('python')
+local pn = py.import('pronouncing')
+
+
+local JSON_to_table = function(path)
+	local f = io.open(path)
+	local js = f:read('*a')
+	f:close()
+
+	return json.decode(js)
+end
+
+local table_to_JSON = function(t, path)
+	local f = io.open(path, 'w')
+	f:write(json.encode(t))
+	f:close()
+end
+
 -----------------------------------------------------------------------------
 -- Create a json-object with place rhymes
 
@@ -119,3 +139,20 @@
 -- 	local f = io.open('nouns.json', 'w')
 -- 	f:write(json.encode(nouns))
 -- end
+
+-----------------------------------------------------------------------------
+
+-- Create dictionary with fixed size of words
+do
+	local nouns = JSON_to_table('dict/descriptions.json')
+
+	local t = {}
+	for _, noun in pairs(nouns) do
+		local phones = pn.phones_for_word(string.lower(noun))[0] or ''
+		local syls = pn.syllable_count(phones) or 0
+
+		if syls <= 3 then table.insert(t, noun) end
+	end
+
+	table_to_JSON(t, 'dict/wip_descr.json')
+end
