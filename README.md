@@ -26,7 +26,7 @@ It was tested with Lua 5.1 and Python 2.7.
 # Usage:
 To use generator you should launch `limerickgen.lua` script and specify amount of limericks to generate with first parameter.
 For example:
-> sudo lua limerickgen.lua 1
+> lua limerickgen.lua 1
 
 It will output 1 randomly generated limerick to stdout.
 NB: 
