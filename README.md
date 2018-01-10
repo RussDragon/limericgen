@@ -12,15 +12,23 @@ It was tested with Lua 5.1 and Python 2.7.
 
 # Installation (generator):
 > sudo apt-get install lua5.1
+
 > sudo apt-get install python
+
 > pip install pronouncing
+
 > sudo luarocks install lua-cjson
 
 > git clone lunatic-python
+
 > cd lunatic-python
+
 > edit setup.py and change lua version to 5.1
+
 > sudo python setup.py install
+
 > cd build/lib/
+
 > mv lua-python.so /usr/local/lib/lua/5.1/python.so
 
 # Usage:
