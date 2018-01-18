@@ -136,62 +136,104 @@ local lim_sizes =
 
 local make_limerick
 do
+  local add_occupation = function(pattern)
+    pattern[1][3] = ''
+    pattern[1][4] = ''
+    pattern[5][3] = ''
+    pattern[5][4] = ''
+
+    local who_syl
+    local who_stress
+
+    -- 1 – a/an young/old (2syl), 2 – a/an (3syl)
+    if math_random(1, 2) == 1 then
+      if math_random(1, 2) == 1 then pattern[1][3] = 'an Old' else pattern[1][3] = 'a Young' end
+
+      who_syl = 2
+      who_stress = 1
+    else
+      who_syl = 3
+      who_stress = 2
+    end
+
+    local who = get_random_word(occupations, who_syl, who_stress):gsub('^%l', string.upper)
+    pattern[1][4] = who
+    pattern[5][4] = pattern[1][4]
+
+    if pattern[1][3] == '' then
+      local vowels = 'AEIOU'
+      
+      if vowels:find(who:match('.')) then pattern[1][3] = 'an' else pattern[1][3] = 'a' end
+    end
+
+    pattern[5][3] = pattern[1][3]:match(' (.+)') or '' -- HACK, FIX LATER
+  end
+
+  local add_place = function(pattern)
+    pattern[1][6] = ''
+    pattern[2][6] = ''
+    pattern[5][6] = ''
+
+    local place_syl = count_free_syls(pattern[1], lim_sizes[1])
+    local place_stress = 1
+
+    local place, adj = get_rhyming_pair(places_rhymes, place_syl, place_stress)
+
+    pattern[1][6] = place
+    pattern[2][6] = adj
+    pattern[5][6] = pattern[1][6]
+  end
+
+  local add_descriptions = function(pattern)
+    pattern[2][4] = ''
+    pattern[5][2] = ''
+
+    pattern[2][4] = get_random_word(descr, count_free_syls(pattern[2], lim_sizes[2]), 1)
+    pattern[5][2] = get_random_word(descr, count_free_syls(pattern[5], lim_sizes[5]), 2)
+  end
+
+  local add_objects = function(pattern)
+    pattern[3][5] = ''
+    pattern[4][4] = ''
+
+    local obj_syl = count_free_syls(pattern[3], lim_sizes[3])
+    local obj_stress = 1
+
+    local obj, obj_rhyme = get_rhyming_pair(objects_rhymes, obj_syl, obj_stress)
+
+    pattern[3][5] = obj
+    pattern[4][4] = obj_rhyme
+  end
+
+  local add_noun = function(pattern)
+    pattern[4][2] = ''
+    pattern[4][2] = nouns[math.random(1, #nouns)]
+  end
+
   local generate = function(self)
-    do
-      local who_syl
-      local who_stress
+    add_occupation(self.pattern_)
+    add_place(self.pattern_)
+    add_descriptions(self.pattern_)
+    add_objects(self.pattern_)
+    add_noun(self.pattern_)
 
-      -- 1 – a/an young/old (2syl), 2 – a/an (3syl)
-      if math_random(1, 2) == 1 then
-        if math_random(1, 2) == 1 then self.pattern_[1][3] = 'an Old' else self.pattern_[1][3] = 'a Young' end
+    return self
+  end
 
-        who_syl = 2
-        who_stress = 1
-      else
-        who_syl = 3
-        who_stress = 2
-      end
+  local mutate = function(self)
+    local change_pos = math.random(1, 5)
 
-      local who = get_random_word(occupations, who_syl, who_stress):gsub('^%l', string.upper)
-      self.pattern_[1][4] = who
-      self.pattern_[5][4] = self.pattern_[1][4]
-
-      if self.pattern_[1][3] == '' then
-        local vowels = 'AEIOU'
-        
-        if vowels:find(who:match('.')) then self.pattern_[1][3] = 'an' else self.pattern_[1][3] = 'a' end
-      end
-
-      self.pattern_[5][3] = self.pattern_[1][3]:match(' (.+)') or '' -- HACK, FIX LATER
+    if change_pos == 1 then
+      add_occupation(self.pattern_)
+    elseif change_pos == 2 then
+      add_place(self.pattern_)
+    elseif change_pos == 3 then
+      add_descriptions(self.pattern_)
+    elseif change_pos == 4 then
+      add_objects(self.pattern_)
+    elseif change_pos == 5 then
+      add_noun(self.pattern_)
     end
-
-    do
-      local place_syl = count_free_syls(self.pattern_[1], lim_sizes[1])
-      local place_stress = 1
-
-      local place, adj = get_rhyming_pair(places_rhymes, place_syl, place_stress)
-
-      self.pattern_[1][6] = place
-      self.pattern_[2][6] = adj
-      self.pattern_[5][6] = self.pattern_[1][6]
-    end
-
-    do
-      self.pattern_[2][4] = get_random_word(descr, count_free_syls(self.pattern_[2], lim_sizes[2]), 1)
-      self.pattern_[5][2] = get_random_word(descr, count_free_syls(self.pattern_[5], lim_sizes[5]), 2)
-    end
-
-    do
-      local obj_syl = count_free_syls(self.pattern_[3], lim_sizes[3])
-      local obj_stress = 1
-
-      local obj, obj_rhyme = get_rhyming_pair(objects_rhymes, obj_syl, obj_stress)
-
-      self.pattern_[3][5] = obj
-      self.pattern_[4][4] = obj_rhyme
-    end
-    
-    self.pattern_[4][2] = nouns[math.random(1, #nouns)]
 
     return self
   end
@@ -209,6 +251,7 @@ do
     return
     {
       generate = generate;
+      mutate = mutate;
       render = render;
 
       pattern_ =
@@ -227,8 +270,8 @@ end
 
 math_randomseed(os_time())
 
-local iters = select(1, ...) or 1
 local limerick = make_limerick()
+local iters = select(1, ...) or 1
 for i = 1, iters do
   print(limerick:generate():render(), '\n')
 end
