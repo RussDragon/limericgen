@@ -6,6 +6,7 @@ It was tested with Lua 5.1 and Python 2.7.
 
 # Dependencies (generator): 
 - Lua-cjson
+- Lua-nucleo
 - Python 2.7
 - Python pronouncing module
 - Lunatic-python
@@ -18,6 +19,7 @@ It was tested with Lua 5.1 and Python 2.7.
 > pip install pronouncing
 
 > sudo luarocks install lua-cjson
+> sudo luarocks install lua-nucleo
 
 > git clone lunatic-python
 
@@ -41,6 +43,11 @@ NB:
 You must be in the same directory with script, 
 otherwise you won't be able to launch it, 
 due to the searching paths of Lua interpreter.
+
+To use mutations of limerick you should use this syntax:
+> lua limerickgen.lua 2 --mutation
+
+If done correctly, it prints 2 limricks: first is a default limerick without mutation and second with mutation.
 
 # Dependencies (twitter bot):
 - Twiiter t (https://github.com/sferik/t)
