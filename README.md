@@ -43,12 +43,13 @@ otherwise you won't be able to launch it,
 due to the searching paths of Lua interpreter.
 
 # Dependencies (twitter bot):
-- Twiiter t (https://github.com/sferik/t)
+- Install lua-twitter (https://github.com/leafo/lua-twitter)
 - Twitter account with api tokens
 
 # Installation (twitter bot):
-- Download and install twitter t
-- Authorize your twitter with "t authorize"
+- Download and install lua-twitter from repository
+- Write screen_name (your username) of your twitter account to conf.json
+- Write your tokens to conf.json
 - Clone this repo to any directory
 - Setup crontab to start bot.sh with required frequency
 
