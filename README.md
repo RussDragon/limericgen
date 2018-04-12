@@ -19,6 +19,7 @@ It was tested with Lua 5.1 and Python 2.7.
 > pip install pronouncing
 
 > sudo luarocks install lua-cjson
+
 > sudo luarocks install lua-nucleo
 
 > git clone lunatic-python
